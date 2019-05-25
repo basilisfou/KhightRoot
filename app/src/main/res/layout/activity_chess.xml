@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+                name="viewModel"
+                type="com.vasilisfouroulis.khightroot.ui.chessboard.ViewModelChessBoard"/>
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/parentChessBoard"
+            tools:context=".MainActivity">
+
+        <FrameLayout
+                android:layout_height="wrap_content"
+                android:id="@+id/chessBoard"
+                android:layout_width="match_parent" app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
+
+
+        <Button
+                android:text="@string/reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{(v) -> viewModel.reset()}"
+                android:id="@+id/resetBT" app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
+                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"/>
+        <Button
+                android:text="@string/calculate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{(v) -> viewModel.calculate()}"
+                android:enabled="@{viewModel.startPoint != null &amp;&amp; viewModel.destinationPoint != null}"
+                android:alpha="@{viewModel.startPoint == null || viewModel.destinationPoint == null ? 0.2f : 1f}"
+                android:id="@+id/calculateBT" android:layout_marginEnd="16dp" app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"/>
+        <TextView
+                android:text="@{String.format(@string/start_point, viewModel.startPoint.toString())}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView3"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp" android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toTopOf="@+id/textView4"/>
+        <TextView
+                android:text="@{String.format(@string/end_point, viewModel.destinationPoint.toString())}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView4" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp" android:layout_marginBottom="53dp"
+                app:layout_constraintBottom_toTopOf="@+id/resetBT"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

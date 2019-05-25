@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">KhightRoot</string>
+    <string name="welcome_label">Welcome to Knight Root</string>
+    <string name="hint_choose_size">Select size of the Chess Board</string>
+    <string name="size_hint">Size : %s</string>
+    <string name="button_text">Proceed</string>
+    <string name="reset">Reset</string>
+    <string name="calculate">Calculate</string>
+    <string name="start_point">Start Point: %s</string>
+    <string name="end_point">End Point: %s</string>
 </resources>

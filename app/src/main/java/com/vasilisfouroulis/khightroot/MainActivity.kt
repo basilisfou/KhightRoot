@@ -1,33 +1,41 @@
 package com.vasilisfouroulis.khightroot
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import com.vasilisfouroulis.khightroot.model.Cell
-import java.util.*
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import com.vasilisfouroulis.khightroot.databinding.ActivityMainBinding
+import com.vasilisfouroulis.khightroot.ui.chessboard.ChessActivity
+import com.vasilisfouroulis.khightroot.ui.chessboard.ChessActivity.Companion.CHESS_SIZE_KEY
+import com.vasilisfouroulis.khightroot.ui.main.MainViewModel
+
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var viewModel : MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding: ActivityMainBinding = DataBindingUtil.setContentView(
+            this, R.layout.activity_main)
 
+        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
 
-        val helper = KnightTourImpl(6)
-        val visited =  Array(6 + 1) { BooleanArray(6 + 1) }
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
 
-        for (i in 1..6)
-            for (j in 1..6)
-                visited[i][j] = false
+        initViewModel()
+    }
 
-
-        val map = helper.getPossibleRoots(
-            Cell(2,2, 0),
-            Cell(4,5, 3),
-            Vector(),
-            hashMapOf(),
-            visited)
-
-        Log.d("mapLog",map.toString())
+    private fun initViewModel() {
+        viewModel.proceedLiveData.observe(this, Observer {
+            if(it != null){
+                val intent = Intent(this, ChessActivity::class.java)
+                intent.putExtra(CHESS_SIZE_KEY,it)
+                startActivity(intent)
+            }
+        })
     }
 }

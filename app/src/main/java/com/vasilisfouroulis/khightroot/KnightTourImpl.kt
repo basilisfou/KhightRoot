@@ -1,13 +1,7 @@
 package com.vasilisfouroulis.khightroot
 
 import com.vasilisfouroulis.khightroot.model.Cell
-import com.vasilisfouroulis.khightroot.model.InvalideBoardSizeException
 import java.util.*
-import kotlin.collections.HashMap
-import kotlin.coroutines.coroutineContext
-import android.R.attr.y
-import android.R.attr.x
-
 
 
 class KnightTourImpl(private val sizeBoard : Int)  {
@@ -22,56 +16,64 @@ class KnightTourImpl(private val sizeBoard : Int)  {
         return boardSize in 6..16
     }
 
-    @Throws(InvalideBoardSizeException::class)
+
     fun getPossibleRoots(startingCell : Cell ,
-                         destinationCell : Cell,
-                         stack : Vector<Cell>,hashMap : HashMap<Int, Vector<Cell>>,
-                         visited : Array<BooleanArray>)
-            : HashMap<Int, Vector<Cell>>  {
+                         destinationCell : Cell){
 
-        if(!isValidBoardSize(sizeBoard)){
-            throw InvalideBoardSizeException("Not a valid BoardSize")
-        }
+        val visited = Array(sizeBoard) { IntArray(sizeBoard) }
+        val queue : Vector<Cell> = Vector()
 
-        stack.add(startingCell)
+        for (x in 0 until sizeBoard)
+            for (y in 0 until sizeBoard)
+                visited[x][y] = 0
 
-        visited[startingCell.x][startingCell.y] = true
+        visited[startingCell.x][startingCell.y] = 0
+        queue.addElement(startingCell)
+//        val map = recursionUtil(startingCell,destinationCell , visited ,queue,1)
 
-        while (!stack.isEmpty()) {
-
-            for (i in 0..7) {
-                val tempCell = stack.lastElement()
-                val x = tempCell.x + possibleXDestinations[i]
-                val y = tempCell.y + possibleYDestinations[i]
-                val newCell = Cell(x,y,1)
-
-                if (isValidCoordinates(x, y) && !visited[x][y] && stack.size < 4) {
-
-                    stack.addElement(newCell)
-                    visited[x][y] = true
-
-                    if (isTargetFound(stack.lastElement(),destinationCell) && stack.size == 4){
-                        val newStack = Vector<Cell>()
-                        newStack.addAll(stack)
-                        hashMap[hashMap.size + 1] = newStack
-                        stack.removeElement(stack.lastElement())
-                    }
-                }
-            }
-
-            stack.removeElement(stack.lastElement())
+//        Log.d("map", map.toString())
 
 
-        }
-
-        return hashMap
     }
 
+//    private fun recursionUtil(startingCell: Cell,
+//                              destinationCell: Cell,
+//                              visited: Array<IntArray>,
+//                              queue : Vector<Cell>,
+//                              pos: Int) : HashMap<Int,Vector<Cell>>  {
+//
+//        visited[startingCell.x][startingCell.y] = pos
+//
+//        if (isTargetFound(startingCell,destinationCell)) {
+//            print(visited)
+//            visited[startingCell.x][startingCell.y] = 0
+//            return
+//        }
+//
+//
+//        for (k in 0..7) {
+//            // Get the new position of Knight from current
+//            // position on chessboard
+//            val newX = startingCell.x + possibleXDestinations[k]
+//            val newY = startingCell.y + possibleYDestinations[k]
+//            val distance = startingCell.distance.plus(1)
+//            val newCell = Cell(newX,newY,distance)
+//
+//            // if new position is a valid and not visited yet
+//            if (isValidCoordinates(newCell) && visited[newX][newY] == 0)
+//                recursionUtil(newCell,destinationCell,visited, pos + 1)
+//        }
+//
+//        // backtrack from current square and remove it from current path
+//        visited[startingCell.x][startingCell.y] = 0
+//    }
 
-    fun isTargetFound(nextCell: Cell, destinationCell: Cell) = nextCell == destinationCell
+    fun isLeafNode(depth : Int) : Boolean = depth == 3
 
-    fun isValidCoordinates(x: Int, y: Int): Boolean {
-        return x in 1..sizeBoard && y in 1..sizeBoard
+    fun isTargetFound(nextCell: Cell, destinationCell: Cell) = nextCell == destinationCell && isLeafNode(nextCell.distance)
+
+    fun isValidCoordinates(cell :Cell): Boolean {
+        return cell.x in 1..sizeBoard && cell.y in 1..sizeBoard
     }
 
 }
