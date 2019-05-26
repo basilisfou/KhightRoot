@@ -1,5 +1,6 @@
 package com.vasilisfouroulis.khightroot
 
+import android.util.Log
 import com.vasilisfouroulis.khightroot.model.Cell
 import java.util.*
 
@@ -20,60 +21,65 @@ class KnightTourImpl(private val sizeBoard : Int)  {
     fun getPossibleRoots(startingCell : Cell ,
                          destinationCell : Cell){
 
-        val visited = Array(sizeBoard) { IntArray(sizeBoard) }
         val queue : Vector<Cell> = Vector()
 
-        for (x in 0 until sizeBoard)
-            for (y in 0 until sizeBoard)
-                visited[x][y] = 0
-
-        visited[startingCell.x][startingCell.y] = 0
         queue.addElement(startingCell)
-//        val map = recursionUtil(startingCell,destinationCell , visited ,queue,1)
+        val map = solve(queue,destinationCell , hashMapOf())
 
-//        Log.d("map", map.toString())
 
 
     }
 
-//    private fun recursionUtil(startingCell: Cell,
-//                              destinationCell: Cell,
-//                              visited: Array<IntArray>,
-//                              queue : Vector<Cell>,
-//                              pos: Int) : HashMap<Int,Vector<Cell>>  {
-//
-//        visited[startingCell.x][startingCell.y] = pos
-//
-//        if (isTargetFound(startingCell,destinationCell)) {
-//            print(visited)
-//            visited[startingCell.x][startingCell.y] = 0
-//            return
-//        }
-//
-//
-//        for (k in 0..7) {
-//            // Get the new position of Knight from current
-//            // position on chessboard
-//            val newX = startingCell.x + possibleXDestinations[k]
-//            val newY = startingCell.y + possibleYDestinations[k]
-//            val distance = startingCell.distance.plus(1)
-//            val newCell = Cell(newX,newY,distance)
-//
-//            // if new position is a valid and not visited yet
-//            if (isValidCoordinates(newCell) && visited[newX][newY] == 0)
-//                recursionUtil(newCell,destinationCell,visited, pos + 1)
-//        }
-//
-//        // backtrack from current square and remove it from current path
-//        visited[startingCell.x][startingCell.y] = 0
-//    }
+    private fun solve(queue : Vector<Cell>,
+                      destinationCell : Cell,
+                      hashMap: HashMap<Int,Vector<Cell>>) : Boolean {
+
+        val currentCell = queue.lastElement()
+
+        if (queue.isEmpty()) {
+            Log.d("Possible solutions" , hashMap.toString())
+            return true
+        }
+
+
+        for (k in 0..7) {
+            // Get the new position of Knight from current
+            // position on chessboard
+            val newX = currentCell.x + possibleXDestinations[k]
+            val newY = currentCell.y + possibleYDestinations[k]
+            val distance = currentCell.distance.plus(1)
+            val newCell = Cell(newX, newY, distance)
+
+            if (isSafe(newCell, currentCell, distance)) {
+                queue.addElement(newCell)
+                newCell.head = currentCell
+
+                if(isTargetFound(newCell,destinationCell) && isLeafNode(newCell.distance)) {
+                    hashMap[hashMap.size] = queue
+                }
+
+                if(isLeafNode(newCell.distance)){
+                    queue.removeElementAt(queue.lastIndex)
+                }
+
+                return solve(queue,destinationCell,hashMap)
+            }
+        }
+
+        return false
+    }
+
+    private fun isSafe(
+        newCell: Cell,
+        currentCell: Cell?,
+        distance: Int
+    ) = isValidCoordinates(newCell) && newCell.head != currentCell && distance < 3
 
     fun isLeafNode(depth : Int) : Boolean = depth == 3
 
-    fun isTargetFound(nextCell: Cell, destinationCell: Cell) = nextCell == destinationCell && isLeafNode(nextCell.distance)
+    fun isTargetFound(nextCell: Cell, destinationCell: Cell) = nextCell == destinationCell
 
     fun isValidCoordinates(cell :Cell): Boolean {
         return cell.x in 1..sizeBoard && cell.y in 1..sizeBoard
     }
-
 }
