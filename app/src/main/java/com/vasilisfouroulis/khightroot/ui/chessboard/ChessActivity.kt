@@ -18,8 +18,12 @@ import com.vasilisfouroulis.khightroot.model.Cell
 import kotlinx.android.synthetic.main.activity_chess.*
 import java.util.*
 import android.graphics.Color
+import android.text.method.ScrollingMovementMethod
 import android.widget.LinearLayout
-import androidx.core.content.ContextCompat
+import android.content.DialogInterface
+import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
+
 
 class ChessActivity : AppCompatActivity() {
 
@@ -57,7 +61,7 @@ class ChessActivity : AppCompatActivity() {
                 if(map.size == 0){
                     Toast.makeText(this,getString(R.string.no_paths),Toast.LENGTH_LONG).show()
                 } else {
-                    createChessBoard(getRow(intent),getCol(intent),map,viewModel.startPoint.value!!,viewModel.destinationPoint.value!! )
+                    setAlertDialog(map)
                 }
             }
         })
@@ -125,7 +129,6 @@ class ChessActivity : AppCompatActivity() {
         cs.setDimensionRatio(R.id.chessBoard, "$mCols:$mRows")
         for (iRow in 0 until mRows) {
             for (iCol in 0 until mCols) {
-
                 id = idArray[iRow][iCol]
                 cs.setDimensionRatio(id, "1:1")
                 if (iRow == 0) {
@@ -147,5 +150,20 @@ class ChessActivity : AppCompatActivity() {
 
     private fun isValidBoardSize(boardSize: Int): Boolean {
         return boardSize in 6..16
+    }
+
+    private fun setAlertDialog(map : Vector<Vector<Cell>>){
+        val builderSingle = AlertDialog.Builder(this)
+
+        val arrayAdapter = ArrayAdapter<String>(this, R.layout.text_result)
+        for(vector in map){
+            arrayAdapter.add(vector.toString())
+        }
+
+
+        builderSingle.setNegativeButton("cancel") { dialog, which -> dialog.dismiss() }
+
+        builderSingle.setAdapter(arrayAdapter,null)
+        builderSingle.show()
     }
 }
