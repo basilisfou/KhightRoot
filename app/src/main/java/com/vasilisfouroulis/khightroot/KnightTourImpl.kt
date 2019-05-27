@@ -24,7 +24,7 @@ class KnightTourImpl(private val sizeBoard : Int)  {
         val queue : Vector<Cell> = Vector()
 
         queue.addElement(startingCell)
-        val map = solve(queue,destinationCell , hashMapOf())
+        val map = solve(queue,destinationCell , Vector())
 
 
 
@@ -32,48 +32,52 @@ class KnightTourImpl(private val sizeBoard : Int)  {
 
     private fun solve(queue : Vector<Cell>,
                       destinationCell : Cell,
-                      hashMap: HashMap<Int,Vector<Cell>>) : Boolean {
+                      hashMap: Vector<Vector<Cell>>) : Boolean {
 
-        val currentCell = queue.lastElement()
-
-        if (queue.isEmpty()) {
-            Log.d("Possible solutions" , hashMap.toString())
-            return true
-        }
-
+        var currentCell = queue.lastElement()
 
         for (k in 0..7) {
-            // Get the new position of Knight from current
-            // position on chessboard
-            val newX = currentCell.x + possibleXDestinations[k]
-            val newY = currentCell.y + possibleYDestinations[k]
-            val distance = currentCell.distance.plus(1)
-            val newCell = Cell(newX, newY, distance)
+            var newX = currentCell.x + possibleXDestinations[k]
+            var newY = currentCell.y + possibleYDestinations[k]
+            val secondCell = Cell(newX, newY, 0)
+            if(isSafe(secondCell,currentCell) ){
+                queue.addElement(secondCell)
 
-            if (isSafe(newCell, currentCell, distance)) {
-                queue.addElement(newCell)
-                newCell.head = currentCell
+                for(i in 0..7) {
+                    newX = secondCell.x + possibleXDestinations[i]
+                    newY = secondCell.y + possibleYDestinations[i]
+                    val trirdCell = Cell(newX, newY, 0)
 
-                if(isTargetFound(newCell,destinationCell) && isLeafNode(newCell.distance)) {
-                    hashMap[hashMap.size] = queue
+                    if(isSafe(trirdCell,currentCell) && !queue.contains(trirdCell)){
+                        queue.addElement(trirdCell)
+                        for(j in 0..7){
+                            newX = trirdCell.x + possibleXDestinations[j]
+                            newY = trirdCell.y + possibleYDestinations[j]
+                            val forthCell = Cell(newX, newY, 0)
+                            if(isSafe(forthCell,currentCell) && isTargetFound(forthCell,destinationCell) && !queue.contains(forthCell)){
+                                queue.addElement(forthCell)
+                                val newQueue = Vector(queue)
+                                hashMap.addElement(newQueue)
+                                queue.removeElementAt(queue.size - 1)
+                                break
+                            }
+                        }
+                        queue.removeElementAt(queue.size - 1)
+                    }
                 }
-
-                if(isLeafNode(newCell.distance)){
-                    queue.removeElementAt(queue.lastIndex)
-                }
-
-                return solve(queue,destinationCell,hashMap)
+                queue.removeElementAt(queue.size - 1)
             }
         }
+
+        Log.d("Possible solutions" , hashMap.toString())
 
         return false
     }
 
     private fun isSafe(
         newCell: Cell,
-        currentCell: Cell?,
-        distance: Int
-    ) = isValidCoordinates(newCell) && newCell.head != currentCell && distance < 3
+        currentCell: Cell?
+    ) = isValidCoordinates(newCell)
 
     fun isLeafNode(depth : Int) : Boolean = depth == 3
 
