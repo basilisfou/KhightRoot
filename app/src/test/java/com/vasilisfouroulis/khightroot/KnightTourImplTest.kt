@@ -1,14 +1,11 @@
 package com.vasilisfouroulis.khightroot
 
-import android.util.Log
-import com.vasilisfouroulis.khightroot.model.Cell
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
-import java.util.*
 
 @RunWith(MockitoJUnitRunner::class)
 class KnightTourImplTest {
@@ -53,25 +50,6 @@ class KnightTourImplTest {
         val result = SUT.isValidBoardSize(17)
         assertThat(result,`is`(false))
     }
-
-    @Test
-    fun isLeafNode_validLeaf_trueReturned(){
-        val result = SUT.isLeafNode(3)
-        assertThat(result,`is`(true))
-    }
-
-    @Test
-    fun isLeafNode_inValidLeafAbove_falseReturned(){
-        val result = SUT.isLeafNode(4)
-        assertThat(result,`is`(false))
-    }
-
-    @Test
-    fun isLeafNode_inValidLeafBelow_falseReturned(){
-        val result = SUT.isLeafNode(2)
-        assertThat(result,`is`(false))
-    }
-
 
     //region helper methods
 

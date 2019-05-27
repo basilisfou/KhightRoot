@@ -2,9 +2,7 @@ package com.vasilisfouroulis.khightroot.model
 
 import java.util.*
 
-data class Cell (val x : Int , val y : Int,  val distance : Int){
-
-    var head : Cell? = null
+data class Cell (val x : Int , val y : Int){
 
     override fun equals(other: Any?): Boolean {
 

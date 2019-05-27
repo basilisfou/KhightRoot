@@ -8,4 +8,5 @@
     <string name="calculate">Calculate</string>
     <string name="start_point">Start Point: %s</string>
     <string name="end_point">End Point: %s</string>
+    <string name="no_paths">No paths fount</string>
 </resources>

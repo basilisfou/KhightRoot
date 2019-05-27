@@ -16,6 +16,10 @@ import com.vasilisfouroulis.khightroot.R
 import com.vasilisfouroulis.khightroot.databinding.ActivityChessBinding
 import com.vasilisfouroulis.khightroot.model.Cell
 import kotlinx.android.synthetic.main.activity_chess.*
+import java.util.*
+import android.graphics.Color
+import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
 
 class ChessActivity : AppCompatActivity() {
 
@@ -35,7 +39,7 @@ class ChessActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        createChessBoard(getRow(intent),getCol(intent))
+        createChessBoard(getRow(intent),getCol(intent),null,null,null)
 
         initViewModel()
     }
@@ -43,15 +47,19 @@ class ChessActivity : AppCompatActivity() {
     private fun initViewModel() {
         viewModel.resetObserver.observe(this, Observer {
             if(it == true){
-                createChessBoard(getRow(intent),getCol(intent))
+                createChessBoard(getRow(intent),getCol(intent),null,null,null)
             }
         })
 
         viewModel.calculateObserver.observe(this, Observer {
             if(it == true){
-                KnightTourImpl(getRow(intent)).getPossibleRoots(viewModel.startPoint.value!!,viewModel.destinationPoint.value!!)
+                val map = KnightTourImpl(getRow(intent)).getPossibleRoots(viewModel.startPoint.value!!,viewModel.destinationPoint.value!!)
+                if(map.size == 0){
+                    Toast.makeText(this,getString(R.string.no_paths),Toast.LENGTH_LONG).show()
+                } else {
+                    createChessBoard(getRow(intent),getCol(intent),map,viewModel.startPoint.value!!,viewModel.destinationPoint.value!! )
+                }
             }
-
         })
     }
 
@@ -63,7 +71,7 @@ class ChessActivity : AppCompatActivity() {
         return intent.getIntExtra(CHESS_SIZE_KEY, -1)
     }
 
-    private fun createChessBoard(mRows : Int , mCols : Int) {
+    private fun createChessBoard(mRows : Int , mCols : Int, map : Vector<Vector<Cell>>?, startPoint : Cell? , endPoint : Cell?) {
 
         if(!isValidBoardSize(mRows) || !isValidBoardSize(mCols) || mRows != mCols){
             Toast.makeText(this,"Invalid chess board", Toast.LENGTH_LONG).show()
@@ -75,17 +83,17 @@ class ChessActivity : AppCompatActivity() {
         var id: Int
         val idArray = Array(mRows) { IntArray(mCols) }
 
-
         for (iRow in 0 until mRows) {
             for (iCol in 0 until mCols) {
-                val tile = ImageView(this)
+
+
+                val tile = LinearLayout(this)
+                val imageView = ImageView(this)
 
                 val lp = ConstraintLayout.LayoutParams(
                     ConstraintSet.MATCH_CONSTRAINT,
                     ConstraintSet.MATCH_CONSTRAINT
                 )
-
-
 
                 id = View.generateViewId()
                 idArray[iRow][iCol] = id
@@ -98,14 +106,17 @@ class ChessActivity : AppCompatActivity() {
                 tile.setOnClickListener {
                     if(!viewModel.startPointIsPeaked){
                         viewModel.startPointIsPeaked = true
-                        viewModel.startPoint.value = Cell(iCol + 1,iRow+1,0)
-                        tile.setImageDrawable(getDrawable(R.drawable.knight))
+                        viewModel.startPoint.value = Cell(iCol + 1,iRow+1)
+                        imageView.setImageDrawable(getDrawable(R.drawable.knight))
                     }else if(viewModel.startPointIsPeaked && !viewModel.endPointIsPeaked){
                         viewModel.endPointIsPeaked = true
-                        viewModel.destinationPoint.value = Cell(iCol+1,iRow+1,0)
-                        tile.setImageDrawable(getDrawable(R.drawable.knight))
+                        viewModel.destinationPoint.value = Cell(iCol+1,iRow+1)
+                        imageView.setImageDrawable(getDrawable(R.drawable.knight))
                     }
                 }
+
+                tile.addView(imageView)
+
             }
         }
 
@@ -114,13 +125,12 @@ class ChessActivity : AppCompatActivity() {
         cs.setDimensionRatio(R.id.chessBoard, "$mCols:$mRows")
         for (iRow in 0 until mRows) {
             for (iCol in 0 until mCols) {
+
                 id = idArray[iRow][iCol]
                 cs.setDimensionRatio(id, "1:1")
                 if (iRow == 0) {
-                    // Connect the top row to the top of the frame.
                     cs.connect(id, ConstraintSet.TOP, R.id.chessBoard, ConstraintSet.TOP)
                 } else {
-                    // Connect top to bottom of row above.
                     cs.connect(id, ConstraintSet.TOP, idArray[iRow - 1][0], ConstraintSet.BOTTOM)
                 }
             }

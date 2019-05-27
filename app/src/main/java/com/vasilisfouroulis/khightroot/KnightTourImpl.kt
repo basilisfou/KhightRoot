@@ -1,6 +1,5 @@
 package com.vasilisfouroulis.khightroot
 
-import android.util.Log
 import com.vasilisfouroulis.khightroot.model.Cell
 import java.util.*
 
@@ -8,7 +7,6 @@ import java.util.*
 class KnightTourImpl(private val sizeBoard : Int)  {
 
     companion object{
-        // x and y direction, where a knight can move
         var possibleXDestinations = intArrayOf(-2, -1, 1, 2, -2, -1, 1, 2)
         var possibleYDestinations = intArrayOf(-1, -2, -2, -1, 1, 2, 2, 1)
     }
@@ -19,45 +17,33 @@ class KnightTourImpl(private val sizeBoard : Int)  {
 
 
     fun getPossibleRoots(startingCell : Cell ,
-                         destinationCell : Cell){
+                         destinationCell : Cell) : Vector<Vector<Cell>> {
 
-        val queue : Vector<Cell> = Vector()
-
+        val queue: Vector<Cell> = Vector()
+        val paths : Vector<Vector<Cell>> = Vector()
         queue.addElement(startingCell)
-        val map = solve(queue,destinationCell , Vector())
 
-
-
-    }
-
-    private fun solve(queue : Vector<Cell>,
-                      destinationCell : Cell,
-                      hashMap: Vector<Vector<Cell>>) : Boolean {
-
-        var currentCell = queue.lastElement()
+        val currentCell = queue.lastElement()
 
         for (k in 0..7) {
-            var newX = currentCell.x + possibleXDestinations[k]
-            var newY = currentCell.y + possibleYDestinations[k]
-            val secondCell = Cell(newX, newY, 0)
-            if(isSafe(secondCell,currentCell) ){
+            val secondCell = getNextSell(currentCell,k)
+
+            if (isValidCoordinates(secondCell)) {
                 queue.addElement(secondCell)
 
-                for(i in 0..7) {
-                    newX = secondCell.x + possibleXDestinations[i]
-                    newY = secondCell.y + possibleYDestinations[i]
-                    val trirdCell = Cell(newX, newY, 0)
+                for (i in 0..7) {
+                    val thirdCell  = getNextSell(secondCell,i)
 
-                    if(isSafe(trirdCell,currentCell) && !queue.contains(trirdCell)){
-                        queue.addElement(trirdCell)
-                        for(j in 0..7){
-                            newX = trirdCell.x + possibleXDestinations[j]
-                            newY = trirdCell.y + possibleYDestinations[j]
-                            val forthCell = Cell(newX, newY, 0)
-                            if(isSafe(forthCell,currentCell) && isTargetFound(forthCell,destinationCell) && !queue.contains(forthCell)){
+                    if (isValidCoordinates(thirdCell) && !isPreviousCell(queue.firstElement(),thirdCell)) {
+                        queue.addElement(thirdCell)
+
+                        for (j in 0..7) {
+                            val forthCell  = getNextSell(thirdCell,j)
+
+                            if (isValidCoordinates(forthCell) && isTargetFound(forthCell, destinationCell) && !isPreviousCell(queue[1],forthCell)) {
                                 queue.addElement(forthCell)
                                 val newQueue = Vector(queue)
-                                hashMap.addElement(newQueue)
+                                paths.addElement(newQueue)
                                 queue.removeElementAt(queue.size - 1)
                                 break
                             }
@@ -69,19 +55,21 @@ class KnightTourImpl(private val sizeBoard : Int)  {
             }
         }
 
-        Log.d("Possible solutions" , hashMap.toString())
-
-        return false
+        return paths
     }
 
-    private fun isSafe(
-        newCell: Cell,
-        currentCell: Cell?
-    ) = isValidCoordinates(newCell)
+    fun getNextSell(currentCell : Cell, positionMove : Int) : Cell {
+        val newX = currentCell.x + possibleXDestinations[positionMove]
+        val newY = currentCell.y + possibleYDestinations[positionMove]
 
-    fun isLeafNode(depth : Int) : Boolean = depth == 3
+        return Cell(newX,newY)
+    }
 
-    fun isTargetFound(nextCell: Cell, destinationCell: Cell) = nextCell == destinationCell
+    fun isPreviousCell(newCell: Cell,oldCell : Cell) : Boolean {
+        return newCell == oldCell
+    }
+
+    private fun isTargetFound(nextCell: Cell, destinationCell: Cell) = nextCell == destinationCell
 
     fun isValidCoordinates(cell :Cell): Boolean {
         return cell.x in 1..sizeBoard && cell.y in 1..sizeBoard
